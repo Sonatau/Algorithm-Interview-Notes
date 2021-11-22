@@ -59,3 +59,26 @@ public:
 };
 ```
 
+**闫总版**
+
+```c++
+class Solution {
+public:
+    bool canThreePartsEqualSum(vector<int>& arr) {
+      int sum = accumulate(arr.begin(), arr.end(), 0);
+      if(sum % 3) return false;
+      sum /= 3;
+      int i = 0, j = arr.size() - 1;
+      for(int s = 0; i < arr.size(); i++) {
+        s += arr[i];
+        if(s == sum) break;
+      }
+      for(int s = 0; j >= 0; j--) {
+        s += arr[i];
+        if(s == sum) break;
+      }
+      return i + 1 <= j - 1; // 注意这个 因为要确保三个集合不为空
+    }
+};
+```
+
