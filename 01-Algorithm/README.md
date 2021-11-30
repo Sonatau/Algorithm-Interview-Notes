@@ -15,7 +15,7 @@
 
 - [`No.1019` 链表中的下一个更大节点](LeetCode/11月/LeetCode_1019_中等_链表中的下一个更大节点.md)
 - [`No.1021` 删除最外层的括号](LeetCode/11月/LeetCode_1021_简单_删除最外层的括号.md)
-- [`剑指Offer09 ` 用两个栈实现队列](LeetCode/11月/LeetCode_剑指Offer09_简单_ 用两个栈实现队列.md)
+- [`剑指Offer09` 用两个栈实现队列](LeetCode/11月/LeetCode_剑指Offer09_简单_ 用两个栈实现队列.md)
 
 ### 数组
 
