@@ -22,7 +22,7 @@
 
 随着梯度下降的进行，每一层的参数 ![[公式]](https://www.zhihu.com/equation?tex=W%5E%7B%5Bl%5D%7D) 与 ![[公式]](https://www.zhihu.com/equation?tex=b%5E%7B%5Bl%5D%7D) 都会被更新，那么 ![[公式]](https://www.zhihu.com/equation?tex=Z%5E%7B%5Bl%5D%7D) 的分布也就发生了改变，进而 ![[公式]](https://www.zhihu.com/equation?tex=A%5E%7B%5Bl%5D%7D) 也同样出现分布的改变。而 ![[公式]](https://www.zhihu.com/equation?tex=A%5E%7B%5Bl%5D%7D) 作为第 ![[公式]](https://www.zhihu.com/equation?tex=l%2B1) 层的输入，意味着 ![[公式]](https://www.zhihu.com/equation?tex=l%2B1) 层就需要去不停适应这种数据分布的变化。
 
-#### Internal Covariate Shift带来的问题？
+#### Internal Covariate Shift带来的问题
 
 **（1）上层网络需要不停调整来适应输入数据分布的变化，导致网络学习速度的降低**
 
@@ -72,9 +72,9 @@
 
 因此，BN又引入了两个可学习（learnable）的参数 ![[公式]](https://www.zhihu.com/equation?tex=%5Cgamma) 与 ![[公式]](https://www.zhihu.com/equation?tex=%5Cbeta) 。
 
-这两个参数的引入是**为了恢复数据本身的表达能力**，对规范化后的数据进行线性变换，即 ![[公式]](https://www.zhihu.com/equation?tex=%5Ctilde%7BZ_j%7D%3D%5Cgamma_j+%5Chat%7BZ%7D_j%2B%5Cbeta_j) 。特别地，当 ![[公式]](https://www.zhihu.com/equation?tex=%5Cgamma%5E2%3D%5Csigma%5E2%2C%5Cbeta%3D%5Cmu) 时，可以实现等价变换（identity transform)并且保留了原始输入特征的分布信息。
+这两个参数的引入是**为了恢复数据本身的表达能力**，对规范化后的数据进行线性变换，即 ![[公式]](https://www.zhihu.com/equation?tex=%5Ctilde%7BZ_j%7D%3D%5Cgamma_j+%5Chat%7BZ%7D_j%2B%5Cbeta_j) 。特别地，当 ![[公式]](https://www.zhihu.com/equation?tex=%5Cgamma%5E2%3D%5Csigma%5E2%2C%5Cbeta%3D%5Cmu) 时，可以实现等价变换（identity transform)并且保留了原始输入特征的分布信息。**通过上面的步骤，我们就在一定程度上保证了输入数据的表达能力。**
 
-**通过上面的步骤，我们就在一定程度上保证了输入数据的表达能力。**
+训练时，均值、方差分别是**该批次**内数据相应维度上的均值与方差；训练一旦结束，学习参数gamma和bata也就确定了。
 
 以上就是整个Batch Normalization在模型训练中的算法和思路。
 
@@ -145,3 +145,208 @@ BN通过规范化与线性变换使得每一层网络的输入数据的均值与
 在Batch Normalization中，由于我们使用mini-batch的均值与方差作为对整体训练样本均值与方差的估计，尽管每一个batch中的数据都是从总体样本中抽样得到，但不同mini-batch的均值与方差会有所不同，这就为网络的学习过程中增加了随机噪音，与Dropout通过关闭神经元给网络训练带来噪音类似，在一定程度上对模型起到了正则化的效果。
 
 另外，原作者通过也证明了网络加入BN后，可以丢弃Dropout，模型也同样具有很好的泛化效果。
+
+### 适用场景
+
+**在神经网络训练时遇到收敛速度很慢，或梯度爆炸等无法训练的状况时可以尝试BN来解决**。
+
+另外，在一般使用情况下也可以加入BN来加快训练速度，提高模型精度。
+
+BN 在每个 mini-batch 比较大，数据分布比较接近的场景比较适用。
+
+在进行训练之前，要做好充分的shuffle，否则效果会差很多。
+
+另外，由于BN需要在运行过程中统计每个mini-batch的一阶统计量和二阶统计量，因此不适用于动态的网络结构和RNN网络。
+
+### python实现
+
+#### 参数初始化
+
+$\beta$ 初始化值为0，$\gamma$初始化值为1
+
+#### 更新策略
+
+参数更新策略：
+$$
+\mu _{statistic+1}=(1-momentum)*\mu _{statistic}+momentum*\mu _{now} \\
+\sigma _{statistic+1}^{2}=(1-momentum)*\sigma _{statistic}^{2}+momentum*\sigma _{now}^{2}
+$$
+在pytorch中对当前批次feature进行bn处理时所使用的$\sigma _{now}^{2}$是**总体标准差**，计算公式如下：
+$$
+\sigma _{now}^{2}=\frac{1}{m}\sum_{i=1}^{m}(x_{i}-\mu _{now})^{2}
+$$
+在更新统计量$\sigma _{statistic}^{2}$时采用的是$\sigma _{now}^{2}$是**样本标准差**，计算公式如下：
+$$
+\sigma _{now}^{2}=\frac{1}{m-1}\sum_{i=1}^{m}(x_{i}-\mu _{now})^{2}
+$$
+
+#### 两种实现方式
+
+验证是否和使用官方bn处理方法结果一致。
+
+**第一种**：
+
+在bn_process中计算输入batch数据的每个维度（这里的维度是channel维度）的均值和标准差（标准差等于方差开平方）。
+
+然后通过计算得到的均值和**总体标准差**对feature每个维度进行标准化，然后使用均值和**样本标准差**更新统计均值和标准差。
+
+```python
+def bn_process(x, mean, var):
+    b, c, w, h = x.shape
+    # 对每个通道进行BN
+    for i in range(c):
+        x_c = x[:, i]
+        mean_c = x_c.mean()
+        std_1 = x_c.std()  # 总体方差
+        std_2 = x_c.std(ddof=1)  # 样本方差（无偏估计
+
+        x[:, i] = (x[:, i] - mean_c) / np.sqrt(std_1 ** 2 + 1e-5)
+
+        mean[i] = mean[i] * 0.9 + mean_c * 0.1
+        var[i] = var[i] * 0.9 + (std_2 ** 2) * 0.1  # 使用样本方差进行更行
+
+    print(x)
+    
+x = torch.randn(2, 3, 2, 2)  # 元素个数等于channel深度
+calculate_mean = [0.0, 0.0, 0.0]
+calculate_var = [1.0, 1.0, 1.0]   
+bn_process(x.numpy().copy(), calculate_mean, calculate_var)
+```
+
+输出如下：
+
+```
+[[[[ 0.77257067 -1.2975506 ]
+   [-0.3630766   1.4894383 ]]
+
+  [[-1.8136703  -0.01955615]
+   [-0.8204374   0.31605968]]
+
+  [[ 0.6743245   1.4604934 ]
+   [-0.369741   -1.151481  ]]]
+
+
+ [[[ 1.3495055  -1.004653  ]
+   [-0.2599011  -0.68633324]]
+
+  [[ 1.35173     1.0199517 ]
+   [-0.74816847  0.7140909 ]]
+
+  [[-0.2033853   0.32857594]
+   [ 0.95862955 -1.6974164 ]]]]
+```
+
+**第二种**：
+
+设计为类，并用实例属性来保存一些变量值。
+
+初始化中beta和gamma对应于BN中需要学习的参数，分别初始化为0和1，接下来就是前向传播的实现：
+
+```python
+class BN:
+    def __init__(self, momentum, eps, num_features):
+        """
+        初始化参数值
+        :param momentum: 追踪样本整体均值和方差的动量
+        :param eps: 防止数值计算错误
+        :param num_features: 特征数量
+        """
+
+        self._mean = 0
+        self._std = 1
+        self._momentum = momentum
+        self._eps = eps  # 防止计算无效
+        self._num_features = num_features
+        
+        # 对应learnable参数beta和gamma，采用pytorch文档中的初始化值
+        self._beta = np.zeros(shape=(num_features, ))
+        self._gamma = np.ones(shape=(num_features, ))
+
+    def batch_norm(self, x):
+        for i in range(self._num_features):
+            x_c = x[:, i]
+            x_mean = x_c.mean()
+            
+            x_std_1 = x_c.std()
+            x_std_2 = x_c.std(ddof=1)
+            
+            # 对应mean的更新公式
+            self._mean = (1 - self._momentum) * x_mean + self._momentum * self._mean
+            self._std = (1 - self._momentum) * x_std_2 ** 2 + self._momentum * self._std
+
+            # 对应论文中计算BN的公式
+            x_hat = (x_c - x_mean) / np.sqrt(x_std_1 ** 2 + self._eps)
+            x[:, i] = x_hat
+            y = self._gamma[i] * x_hat + self._beta[i]  # 恢复数据表达
+
+        print(x)
+```
+
+由于pytorch中的BatchNorm中beta和gamma初始化并不是0和1，为了保证初始化值一样，将自己定义的类的beta和gamm替换为torch初始化的值，进行如下测试：
+
+```python
+bn2 = BN(momentum=0.1, eps=1e-5, num_features=3)
+bn2._beta = bn.bias.detach().numpy()
+bn2._gamma = bn.weight.detach().numpy()
+bn2.batch_norm(x.numpy().copy())
+```
+
+输出如下，可以发现两种实现方式的结果是相同的。
+
+```
+[[[[ 0.77257067 -1.2975506 ]
+   [-0.3630766   1.4894383 ]]
+
+  [[-1.8136703  -0.01955615]
+   [-0.8204374   0.31605968]]
+
+  [[ 0.6743245   1.4604934 ]
+   [-0.369741   -1.151481  ]]]
+
+
+ [[[ 1.3495055  -1.004653  ]
+   [-0.2599011  -0.68633324]]
+
+  [[ 1.35173     1.0199517 ]
+   [-0.74816847  0.7140909 ]]
+
+  [[-0.2033853   0.32857594]
+   [ 0.95862955 -1.6974164 ]]]]
+```
+
+**pytorch官方BN处理方法**：
+
+```python
+bn = nn.BatchNorm2d(3, eps=1e-5)  # 3 = num_features
+output = bn(x)
+print(output)  # output 与 x的输出值相同
+```
+
+输出如下：
+
+```
+tensor([[[[ 0.7726, -1.2976],
+          [-0.3631,  1.4894]],
+
+         [[-1.8137, -0.0196],
+          [-0.8204,  0.3161]],
+
+         [[ 0.6743,  1.4605],
+          [-0.3697, -1.1515]]],
+
+
+        [[[ 1.3495, -1.0047],
+          [-0.2599, -0.6863]],
+
+         [[ 1.3517,  1.0200],
+          [-0.7482,  0.7141]],
+
+         [[-0.2034,  0.3286],
+          [ 0.9586, -1.6974]]]], grad_fn=<NativeBatchNormBackward>)
+```
+
+### 参考博客
+
+- Batch Normalization原理与实战：https://zhuanlan.zhihu.com/p/34879333
+- Batch Normalization原理与python实现：https://zhuanlan.zhihu.com/p/100672008
+- Batch Normalization详解以及pytorch实验：https://blog.csdn.net/qq_37541097/article/details/104434557

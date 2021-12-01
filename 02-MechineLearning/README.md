@@ -2,6 +2,6 @@
 
 ### Batch Normalization
 
-- [BatchNormalization原理](BatchNormalization.md)
-- 
+- [知识点总结](BatchNormalization.md)
+- [Python实现](../05-Code/BatchNormalization.py)
 
