@@ -350,3 +350,4 @@ tensor([[[[ 0.7726, -1.2976],
 - Batch Normalization原理与实战：https://zhuanlan.zhihu.com/p/34879333
 - Batch Normalization原理与python实现：https://zhuanlan.zhihu.com/p/100672008
 - Batch Normalization详解以及pytorch实验：https://blog.csdn.net/qq_37541097/article/details/104434557
+- BN问题汇总：https://blog.csdn.net/wjinjie/article/details/118949226
