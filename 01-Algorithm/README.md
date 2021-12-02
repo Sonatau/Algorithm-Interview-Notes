@@ -7,6 +7,11 @@
 
 ## 刷题记录
 
+### 链表
+
+- [`剑指Offer24 ` 反转链表](LeetCode/12月/LeetCode_剑指Offe24_简单_反转链表.md)
+- [`剑指Offer06 ` 从头到尾打印链表](LeetCode/12月/LeetCode_剑指Offer06_简单_从头到尾打印链表.md)
+
 ### 数学
 
 - [`No.1015` 可被k整除的最小整数](LeetCode/11月/LeetCode_1015_中等_可被k整除的最小整数.md)
