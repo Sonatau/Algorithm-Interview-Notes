@@ -57,28 +57,16 @@ public:
 ```c++
 class Solution {
 public:
-    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {         
-         int n = matrix.size();
-         //特殊情况，二位数组为空
-         if(n == 0){
-             return false;
-         }
-         int m = matrix[0].size();
-         
-         int i = 0;
-         int j=m-1;
-         while(i<n && j>=0 ){
-            if(target == matrix[i][j]){
-                return true;
-            }
-            else if(matrix[i][j] > target ){
-                j--;
-            }
-            else{
-                i++;
-            }
-         }
-         return false;
+    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {
+        if(!matrix.size() || !matrix[0].size()) return false;
+        int n = matrix.size(), m = matrix[0].size();
+        int i = 0, j = m - 1;  // 搜索位置 右上角
+        while(i < n && j > -1) {
+            if(matrix[i][j] < target) i++;
+            else if(matrix[i][j] > target) j--;
+            else return true;
+        }
+        return false;
     }
 };
 ```
