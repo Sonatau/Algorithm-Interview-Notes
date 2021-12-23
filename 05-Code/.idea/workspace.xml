@@ -23,7 +23,7 @@
         <entry file="file://$PROJECT_DIR$/DecisionTree.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="309">
-              <caret line="111" column="29" lean-forward="true" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
+              <caret line="111" column="29" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
               <folding>
                 <element signature="e#127#145#0" expanded="true" />
               </folding>
@@ -53,8 +53,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="580" />
-    <option name="y" value="25" />
+    <option name="x" value="286" />
+    <option name="y" value="43" />
     <option name="width" value="1297" />
     <option name="height" value="857" />
   </component>
@@ -166,14 +166,15 @@
       <workItem from="1639654642969" duration="25000" />
       <workItem from="1639732247492" duration="5024000" />
       <workItem from="1639744008659" duration="845000" />
+      <workItem from="1640156525011" duration="4000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10061000" />
+    <option name="totallyTimeSpent" value="10065000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="580" y="25" width="1297" height="857" extended-state="0" />
+    <frame x="286" y="43" width="1297" height="857" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.2108209" />
@@ -232,7 +233,7 @@
     <entry file="file://$PROJECT_DIR$/DecisionTree.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="309">
-          <caret line="111" column="29" lean-forward="true" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
+          <caret line="111" column="29" selection-start-line="111" selection-start-column="29" selection-end-line="111" selection-end-column="29" />
           <folding>
             <element signature="e#127#145#0" expanded="true" />
           </folding>
